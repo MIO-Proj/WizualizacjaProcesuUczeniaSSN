@@ -32,6 +32,14 @@ def read_data(filename):
             [ [iris_to_label(line[-1])] for line in data ]
         )
 
+def print_weights(weights, epoch, logs):
+    print(50 * "-")
+    print(epoch)
+    print(50 * "-")
+    print(weights)
+    print(50 * "-")
+    print(logs)
+
 # read data from file
 x, y = read_data('iris.data')
 
@@ -51,20 +59,11 @@ model = k.Sequential([
     k.layers.Dense(1)
 ])
 
-
-print("after layers")
-
 model.compile(optimizer='sgd', loss='mse')
 
+epoch_end = k.callbacks.LambdaCallback(on_epoch_end=lambda e, l: print_weights(model.weights, e, l))
+
 # trening sieci
-model.fit(x_train, y_train, epochs=20)
-
-print("after train")
-
-# model.summary()
+model.fit(x_train, y_train, epochs=20, callbacks=epoch_end)
 
 y_pred = model.predict(x_test)
-
-print(y_pred)
-print(y_test)
-
