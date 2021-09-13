@@ -1,6 +1,11 @@
+from imageio.core.util import Image
 import tensorflow.keras as k
+import matplotlib.pyplot as plt
+import numpy as np
 from random import shuffle
 import sys
+import os
+import imageio
 
 def iris_to_label(iris):
     if iris == 'Iris-setosa':
@@ -89,3 +94,38 @@ epoch_end = k.callbacks.LambdaCallback(on_epoch_end=lambda e, l: weights.append(
 
 # trening sieci
 model.fit(x_train, y_train, epochs=100, callbacks=epoch_end)
+
+#########################
+filenames = []
+for i in range(len(weights)):
+
+    filename = f'{i}.png'
+    filenames.append(filename)
+
+    fig = plt.figure()
+    plt.suptitle(f"Epoka {i+1}")
+    plt.axis('off')
+
+    for j, layer in enumerate(weights[i]):
+
+        ax = fig.add_subplot(2, 2, j+1)
+        im = ax.imshow(np.transpose(layer[0]), cmap='seismic', vmin=-0.5, vmax=0.5)
+        ax.set_title(f"Warstwa {j+1}")
+        ax.axis('off')
+
+        plt.colorbar(im)        
+    
+    plt.savefig(filename)
+    plt.close()
+
+# build gif
+with imageio.get_writer('mygif.gif', mode='I') as writer:
+    for filename in filenames:
+        image = imageio.imread(filename)
+        writer.append_data(image)
+        # for _ in range(20):
+            # writer.append_data(image)
+        
+# Remove files
+for filename in set(filenames):
+    os.remove(filename)
