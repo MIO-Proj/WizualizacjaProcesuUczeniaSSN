@@ -87,54 +87,61 @@ def read_data(filename):
             [ iris_to_label(line[-1]) for line in data ]
         )
 
+def train_SSN(a,b, e):
+    neurons = [a, b]
 
-neurons = sys.argv[1:3] # pobranie liczby neuronów w warstwach (np. 8 8 w wywolaniu
-                       # tworzy dwie ukryte warstwy, kazda po 8 neuronów)
+    x, y = read_data('iris.data')
+
+    x_train = x[:120]
+    x_test = x[120:]
+
+    y_train = y[:120]
+    y_test = y[120:]
 
 
+    # tworzenie sieci
+    model = k.Sequential()
+
+    # pierwsza warstwa ukryta (input_dim informuje o rozmiarze danych na wejściu)
+    model.add(k.layers.Dense(units=neurons[0], input_dim=4, activation='relu'))
+
+    # kolejne warstwy ukryte
+    for neuron in neurons[1:]:
+        print(neuron)
+        model.add(k.layers.Dense(units=neuron, activation='relu'))
+
+    # ostatnia warstwa, units=3 bo na wyjściu wybieramy z trzech różnych typów irysów
+    model.add(k.layers.Dense(units=3, activation='relu'))
+
+    # kompilacja sieci
+    model.compile(optimizer='sgd', loss='mse')
+
+    # tutaj ustawiamy funkcję, którajest wywoływana przy każdej epoce podczas treningu
+    # na razie tylko są wypisywane poszczególne wagi i biasy
+    callback = CustomCallback()
+    # epoch_end = k.callbacks.LambdaCallback(on_epoch_end=lambda e, l: print_weights(model.layers, e, l))
+
+    # trening sieci
+
+    model.fit(x_train, y_train, epochs=e, callbacks=callback)
+
+    # sprawdzamy wyniki, w sumie nie istotne dla naszego projektu
+    y_pred = model.predict(x_test)
+
+    print("\n***Resutls***")
+    print(y_pred)
+    print(y_test)
+
+    print(CustomCallback.epochs)
+
+if __name__ == "__main__":
+    neurons = sys.argv[1:3] # pobranie liczby neuronów w warstwach (np. 8 8 w wywolaniu
+                        # tworzy dwie ukryte warstwy, kazda po 8 neuronów)
+
+    e = int(sys.argv[3])
+
+    train_SSN(neurons[0], neurons[1], e)
 # czytanie danych o irysach
-x, y = read_data('iris.data')
 
-x_train = x[:120]
-x_test = x[120:]
-
-y_train = y[:120]
-y_test = y[120:]
-
-
-# tworzenie sieci
-model = k.Sequential()
-
-# pierwsza warstwa ukryta (input_dim informuje o rozmiarze danych na wejściu)
-model.add(k.layers.Dense(units=neurons[0], input_dim=4, activation='relu'))
-
-# kolejne warstwy ukryte
-for neuron in neurons[1:]:
-    print(neuron)
-    model.add(k.layers.Dense(units=neuron, activation='relu'))
-
-# ostatnia warstwa, units=3 bo na wyjściu wybieramy z trzech różnych typów irysów
-model.add(k.layers.Dense(units=3, activation='relu'))
-
-# kompilacja sieci
-model.compile(optimizer='sgd', loss='mse')
-
-# tutaj ustawiamy funkcję, którajest wywoływana przy każdej epoce podczas treningu
-# na razie tylko są wypisywane poszczególne wagi i biasy
-callback = CustomCallback()
-# epoch_end = k.callbacks.LambdaCallback(on_epoch_end=lambda e, l: print_weights(model.layers, e, l))
-
-# trening sieci
-e = int(sys.argv[3])
-model.fit(x_train, y_train, epochs=e, callbacks=callback)
-
-# sprawdzamy wyniki, w sumie nie istotne dla naszego projektu
-y_pred = model.predict(x_test)
-
-print("\n***Resutls***")
-print(y_pred)
-print(y_test)
-
-print(CustomCallback.epochs)
 # with open("data.json", "w") as f:
 #     json.dump(CustomCallback.epochs, f, indent=4)
