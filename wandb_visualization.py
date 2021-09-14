@@ -2,22 +2,19 @@ import wandb
 from wandb.keras import WandbCallback
 import tensorflow.keras as k
 from random import shuffle
+from main import iris_to_label, label_to_iris, get_weights, read_data
 import sys
-import matplotlib.pyplot as plt
-import json
-import numpy as np
 
 # 1. Start a new run
-# wandb_key = "a1c4163f233a795495d3f3955b8baf96668e47a8"
 wandb.login(key="a1c4163f233a795495d3f3955b8baf96668e47a8")
 wandb.init(project='MIO-SSNvisualization', entity='laseka')
+
 
 # 2. Save model inputs and hyperparameters
 # config = wandb.config
 # config.learning_rate = 0.01
 
 # Defining a model
-
 
 class CustomCallback(k.callbacks.Callback):
     epochs = {"Learning_rate": [], "Loss": [], "Weights": []}
@@ -49,17 +46,8 @@ class CustomCallback(k.callbacks.Callback):
             print(f"warstwa {i}")
             print(l.weights)
             layers.append([l.weights[0].numpy(), l.weights[1].numpy()])
-            # print("What")
-            # print(layers[0][0])
-            # if epoch == 0:
-            #     deltas.append([l.weights[0].numpy(), l.weights[1].numpy()])
-            # else:
-            #     deltas.append([np.subtract(l.weights[0].numpy(),layers[epoch-1][0]),
-            #     np.subtract(l.weights[1].numpy(),layers[epoch-1][1])])
 
         CustomCallback.epochs['Weights'].append(layers)
-
-        # CustomCallback.epochs['Weights_delta'].append(deltas)
 
         print("The average loss for epoch {} is {:7.2f}."
               .format(epoch, logs["loss"]))
@@ -68,46 +56,8 @@ class CustomCallback(k.callbacks.Callback):
     print(50 * "-")
 
 
-def iris_to_label(iris):
-    if iris == 'Iris-setosa':
-        return [1, 0, 0]
-    elif iris == 'Iris-versicolor':
-        return [0, 1, 0]
-    elif iris == 'Iris-virginica':
-        return [0, 0, 1]
-    else:
-        return []
-
-
-def label_to_iris(label):
-    if label == 1:
-        return 'Iris-setosa'
-    elif label == 2:
-        return 'Iris-versicolor'
-    elif label == 3:
-        return 'Iris-virginica'
-    else:
-        return '...'
-
-
-def read_data(filename):
-    with open(filename, 'r') as f:
-        data = f.readlines()
-        data = list(map(lambda l: l.strip().split(','), data))
-        data.pop()
-        shuffle(data)
-        return ([[float(string) for string in inner[:-1]] for inner in data],
-                [iris_to_label(line[-1]) for line in data]
-                )
-
-
 if __name__ == "__main__":
-    # wandb.init(project='MIO-SSNvisualization', entity='laseka')
-    neurons = sys.argv[1:3]  # pobranie liczby neuronów w warstwach (np. 8 8 w wywolaniu
-    # tworzy dwie ukryte warstwy, kazda po 8 neuronów)
-
-
-    # czytanie danych o irysach
+    neurons = sys.argv[1:3]
     x, y = read_data('iris.data')
 
     x_train = x[:120]
@@ -116,7 +66,6 @@ if __name__ == "__main__":
     y_train = y[:120]
     y_test = y[120:]
 
-    # tworzenie sieci
     model = k.Sequential()
 
     # pierwsza warstwa ukryta (input_dim informuje o rozmiarze danych na wejściu)
@@ -132,24 +81,12 @@ if __name__ == "__main__":
 
     # kompilacja sieci
     model.compile(optimizer='sgd', loss='mse')
-
-    # tutaj ustawiamy funkcję, którajest wywoływana przy każdej epoce podczas treningu
-    # na razie tylko są wypisywane poszczególne wagi i biasy
     callback = CustomCallback()
-    # epoch_end = k.callbacks.LambdaCallback(on_epoch_end=lambda e, l: print_weights(model.layers, e, l))
 
     # trening sieci
     e = int(sys.argv[3])
     # model.fit(x_train, y_train, epochs=e, callbacks=callback)
 
-    # sprawdzamy wyniki, w sumie nie istotne dla naszego projektu
-    # y_pred = model.predict(x_test)
-
-
-    # Model defined
-
     # 3. Log layer dimensions and metrics over time
     model.fit(x_train, y_train, epochs=e, validation_data=(x_test, y_test),
               callbacks=[WandbCallback(log_weights=True)])
-    # model.fit(x_train, y_train, epochs=5, validation_data=(x_test, y_test),
-    #           callbacks=[WandbCallback()])
