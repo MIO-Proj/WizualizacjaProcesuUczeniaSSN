@@ -7,6 +7,7 @@ import sys
 import os
 import imageio
 
+
 def iris_to_label(iris):
     if iris == 'Iris-setosa':
         return [1, 0, 0]
@@ -16,6 +17,7 @@ def iris_to_label(iris):
         return [0, 0, 1]
     else:
         return []
+
 
 def label_to_iris(label):
     if label == 1:
@@ -27,23 +29,22 @@ def label_to_iris(label):
     else:
         return '...'
 
-def read_data(filename):
 
+def read_data(filename):
     with open(filename, 'r') as f:
         data = f.readlines()
         data = list(map(lambda l: l.strip().split(','), data))
         data.pop()
         shuffle(data)
-        return ( [[float(string) for string in inner[:-1] ] for inner in data],
-            [ iris_to_label(line[-1]) for line in data ]
-        )
+        return ([[float(string) for string in inner[:-1]] for inner in data],
+                [iris_to_label(line[-1]) for line in data]
+                )
+
 
 def get_weights(layers, epoch, logs):
-
     data_from_current_epoch = []
 
     for i, layer in enumerate(layers):
-
         neurons = (layer.weights)[0].numpy()
         bias = (layer.weights)[1].numpy()
 
@@ -53,10 +54,11 @@ def get_weights(layers, epoch, logs):
 
     return data_from_current_epoch
 
+
 ##########################################################################################
 
-neurons = sys.argv[1:] # pobranie liczby neuronów w warstwach (np. 8 8 w wywolaniu
-                       # tworzy dwie ukryte warstwy, kazda po 8 neuronów)
+neurons = sys.argv[1:]  # pobranie liczby neuronów w warstwach (np. 8 8 w wywolaniu
+# tworzy dwie ukryte warstwy, kazda po 8 neuronów)
 
 
 # czytanie danych o irysach
@@ -103,18 +105,17 @@ for i in range(len(weights)):
     filenames.append(filename)
 
     fig = plt.figure()
-    plt.suptitle(f"Epoka {i+1}")
+    plt.suptitle(f"Epoka {i + 1}")
     plt.axis('off')
 
     for j, layer in enumerate(weights[i]):
-
-        ax = fig.add_subplot(2, 2, j+1)
+        ax = fig.add_subplot(2, 2, j + 1)
         im = ax.imshow(np.transpose(layer[0]), cmap='seismic', vmin=-0.5, vmax=0.5)
-        ax.set_title(f"Warstwa {j+1}")
+        ax.set_title(f"Warstwa {j + 1}")
         ax.axis('off')
 
-        plt.colorbar(im)        
-    
+        plt.colorbar(im)
+
     plt.savefig(filename)
     plt.close()
 
@@ -124,8 +125,8 @@ with imageio.get_writer('mygif.gif', mode='I') as writer:
         image = imageio.imread(filename)
         writer.append_data(image)
         # for _ in range(20):
-            # writer.append_data(image)
-        
+        # writer.append_data(image)
+
 # Remove files
 for filename in set(filenames):
     os.remove(filename)

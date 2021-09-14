@@ -1,0 +1,26 @@
+{
+    "os": "Windows-10-10.0.19041-SP0",
+    "python": "3.8.2",
+    "heartbeatAt": "2021-09-12T19:31:31.052553",
+    "startedAt": "2021-09-12T19:31:25.305677",
+    "docker": null,
+    "cpu_count": 4,
+    "cuda": null,
+    "args": [
+        "12",
+        "12",
+        "150"
+    ],
+    "state": "running",
+    "program": "C:/Users/Agnieszka/PycharmProjects/WizualizacjaProcesuUczeniaSSN/wandb_visualization.py",
+    "codePath": "wandb_visualization.py",
+    "git": {
+        "remote": "https://github.com/MIO-Proj/WizualizacjaProcesuUczeniaSSN.git",
+        "commit": "7a314510b8d6e6f7a5a15557325df8afa2c34acf"
+    },
+    "email": "aga.lasek55@gmail.com",
+    "root": "C:/Users/Agnieszka/PycharmProjects/WizualizacjaProcesuUczeniaSSN",
+    "host": "DESKTOP-OFNBCK3",
+    "username": "Agnieszka",
+    "executable": "C:\\Users\\Agnieszka\\AppData\\Local\\Programs\\Python\\Python38\\python.exe"
+}
